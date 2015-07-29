@@ -1,0 +1,108 @@
+# implementation of card game - Memory
+
+import simplegui
+import random
+exposed = [False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False]
+state = 0
+cur_index = 0
+prev_index = 0
+counter = 0
+
+# helper function to initialize globals
+def init():
+    global lst, state, cur_index, prev_index, counter, exposed
+    state = 0
+    cur_index = 0
+    prev_index = 0
+    counter = 0
+    exposed = [False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False]
+    lst = range(8)+range(8)
+    random.shuffle(lst)
+    label.set_text("Moves = " + str(counter)) 
+# define event handlers
+def mouseclick(pos):
+    # add game state logic here
+    
+    global lst,exposed, state, prev_index, cur_index, counter
+    
+    
+    if state == 0:
+        for i in range(16):
+            if ((i*50) < pos[0] < (50*(i+1))) and exposed[i] == False:
+                exposed[i] = True
+                prev_index = i
+                counter += 1
+        state = 1
+    elif state == 1:
+        for i in range(16):
+            if ((i*50) < pos[0] < (50*(i+1))):
+                if exposed[i] == False:
+                    exposed[i] = True
+                    state = 2
+                    cur_index = i
+                    counter += 1
+                else:
+                    
+                    state = 1
+    else:
+        for i in range(16):
+            if ((i*50) < pos[0] < (50*(i+1))):
+                if exposed[i] == False:
+                    exposed[i] = True
+                    counter += 1
+                    if lst[prev_index] == lst[cur_index]:
+                        exposed[cur_index] = True
+                        exposed[prev_index] = True
+                    else:
+                        exposed[cur_index] = False
+                        exposed[prev_index] = False
+                    state = 1
+                    prev_index = i
+                    
+                else:
+                    state = 2
+                    exposed[prev_index] = True
+    label.set_text("Moves = " + str(counter))                
+
+# cards are logically 50x100 pixels in size    
+def draw(canvas):
+    global lst, exposed, state
+    
+    if state == 0:
+        for i in range(16):
+            canvas.draw_polygon([(i*50,0),(50*(i+1),0),(50*(i+1),100),(i*50,100)],3,"Red","Green")
+            
+    elif state == 1:
+        for i in range(16):
+            if exposed[i] == True:
+                canvas.draw_text(str(lst[i]),[20+i*50,60],30, "White")
+                
+            else:
+                canvas.draw_polygon([(i*50,0),(50*(i+1),0),(50*(i+1),100),(i*50,100)],3,"Red","Green")
+                
+    elif state == 2:
+        for i in range(16):
+            if exposed[i] == True:
+                canvas.draw_text(str(lst[i]),[20+i*50,60],30, "White")
+                
+            else:
+                canvas.draw_polygon([(i*50,0),(50*(i+1),0),(50*(i+1),100),(i*50,100)],3,"Red","Green")
+                       
+
+# create frame and add a button and labels
+frame = simplegui.create_frame("Memory", 800, 100)
+frame.add_button("Restart", init)
+label = frame.add_label("Moves = 0")
+
+# initialize global variables
+init()
+
+# register event handlers
+frame.set_mouseclick_handler(mouseclick)
+frame.set_draw_handler(draw)
+
+# get things rolling
+frame.start()
+
+
+# Always remember to review the grading rubric

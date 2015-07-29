@@ -1,0 +1,89 @@
+# template for "Stopwatch: The Game"
+import simplegui
+import time
+# define global variables
+count = 0
+mins = 0
+secns = 0
+tenths_secns = 0
+result = 0
+n = 0
+m = 0
+b = 0
+
+# define helper function format that converts time
+# in tenths of seconds into formatted string A:BC.D
+def format(t):
+    global count
+    global secns, mins, tenths_secns
+    global result
+    if t <= 600:
+        mins = 0
+        tenths_secns = t %10
+        secns = int(t /10)
+        if secns <= 9:
+             result = str(mins) + ":" + "0" + str(secns) + "." + str(tenths_secns)
+        else:
+            result = str(mins) + ":" + str(secns) + "." + str(tenths_secns)
+    else:
+        mins = int(t/600)
+        tenths_secns = (t % 600)%10
+        secns = int((t %600) /10)
+        if secns <= 9:
+             result = str(mins) + ":" + "0" + str(secns) + "." + str(tenths_secns)
+        else:
+            result = str(mins) + ":" + str(secns) + "." + str(tenths_secns)
+    return(result)
+    
+# define event handlers for buttons; "Start", "Stop", "Reset"
+def start_handler():
+    global b
+    b = 1
+    timer.start()
+    
+def stop_handler():
+    global n, m, b, count
+    global tenths_secns
+    x = int (tenths_secns)
+    if b == 1:
+        n += 1
+        b = 0
+    if x == 0 and count != 0:
+        m +=1
+        b = 0
+    timer.stop()
+    
+def reset_handler():
+    global count, m, n
+    count = 0
+    m = n = 0
+    timer.stop()
+    format(count)
+    return()
+
+# define event handler for timer with 0.1 sec interval
+def timer_handler():
+    global count
+    count +=1
+    format(count)
+    return()
+    
+
+# define draw handler
+def draw_handler(canvas):
+    canvas.draw_text(str(result),[50,100],20, "White")
+    canvas.draw_text(str(m)+"/"+str(n),[150,25],20, "Red")
+    
+# create frame
+frame = simplegui.create_frame("Stopwatch",200,200)
+timer = simplegui.create_timer(100,timer_handler)
+# register event handlers
+frame.add_button("Start", start_handler, 100) 
+frame.add_button("Stop", stop_handler, 100)
+frame.add_button("Reset", reset_handler, 100)
+frame.set_draw_handler(draw_handler)
+# start frame
+frame.start()
+format(count)
+
+# Please remember to review the grading rubric
